@@ -9,7 +9,7 @@ public interface IPeriodosService {
 
     EntregaFechas busquedaPeriodos() throws JsonProcessingException;
 
-    ArrayList<String> generarPeriodos(String inicio, String fin, ArrayList<String> fechas);
+    ArrayList<String> generarPeriodos(String inicio, String fin);
 
     ArrayList<String> compararPeriodos(ArrayList<String> fechas1, ArrayList<String> fechas2);
 

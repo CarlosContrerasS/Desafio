@@ -25,15 +25,19 @@ public class PeriodosServiceImpl implements IPeriodosService {
     @Override
     public EntregaFechas busquedaPeriodos() throws JsonProcessingException {
 
+        //URL del servicio de GDD
         String URL = "http://127.0.0.1:8080/periodos/api";
+
+        //creamos un objeto generico que lo reciba
         ResponseEntity<Object> response = restTemplate.getForEntity(URL, Object.class);
 
-        //Mapear el Objeto
+        //Creamos un objeto que no permita mapear lo que recibimos
         ObjectMapper mapper = new ObjectMapper();
+        //Escribimos lo que recibimos en String
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         String entrada = mapper.writeValueAsString(response.getBody());
 
-        //Escribir el objeto del tipo de una clase
+        //Reescribimos el objeto recibido en terminos de nuestra clase
         EntradaFechas entradaFechas = mapper.readValue(entrada, new TypeReference<EntradaFechas>() {
         });
 
@@ -44,12 +48,13 @@ public class PeriodosServiceImpl implements IPeriodosService {
         fechasEntregadas.setFechaFin(entradaFechas.getFechaFin());
         fechasEntregadas.setFechas( entradaFechas.getFechas());
 
+        //enviamos lo entrgado por el GDD
         return fechasEntregadas;
     }
 
     @Override
-    public ArrayList<String> generarPeriodos(String inicio, String fin, ArrayList<String> fechas) {
-
+    public ArrayList<String> generarPeriodos(String inicio, String fin) {
+        //crearemos un ArrayList con todas las fechas de inicio a fin.
         LocalDate fechaInicio = LocalDate.parse(inicio);
         LocalDate fechaFin = LocalDate.parse(fin);
 
@@ -61,13 +66,13 @@ public class PeriodosServiceImpl implements IPeriodosService {
 
         ArrayList<String> fechas1 = new ArrayList<>();
 
-        //Años
+        //Para crear los Años
         for (int i = anoCreacion; i < anoFin + 1; i++) {
             String ano = Integer.toString(i);
             String mes;
             String dia = "01";
 
-            //Meses
+            //Para crear los Meses
             for (int j = 1; j < 13; j++) {
 
                 if(j<10){
@@ -75,16 +80,15 @@ public class PeriodosServiceImpl implements IPeriodosService {
                 }else {
                     mes = Integer.toString(j);
                 }
-
+                //Aquí se crea la fecha que será posteriormente registrada
                 String fechaAuxiliar = ano+"-"+mes+"-"+dia;
 
+                //Condiciones de Borde y de cuando debe registrar esa fecha
                 if (i == anoCreacion && j >= mesCreacion ||
                     i > anoCreacion && i< anoFin ||
                     i== anoFin && j<= mesFin) {
                        fechas1.add(fechaAuxiliar);
                 }
-
-
             }
        }
 
@@ -94,6 +98,7 @@ public class PeriodosServiceImpl implements IPeriodosService {
     @Override
     public ArrayList<String> compararPeriodos(ArrayList<String> fechas1, ArrayList<String> fechas2) {
 
+        //Aquí se compara los dos ArrayList y se eliminan los que esten repetidos
         fechas2.removeAll(fechas1);
 
         return fechas2;
